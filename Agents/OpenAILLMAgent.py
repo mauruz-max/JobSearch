@@ -40,8 +40,8 @@ class OpenAILLMAgent:
 
         try:
             prompt = PromptTemplate.from_template (
-                template = self.base_prompt_template,
-                input_variables = ["full_resume","job_desc"]
+                template = self.base_prompt_template
+                #, input_variables = ["full_resume","job_desc"]
             )
 
             enhanced_prompt = prompt.format(full_resume = resume_text, job_desc = job_description )

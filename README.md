@@ -93,6 +93,7 @@ spreadsheet_id =
 pdf_resume = .pdf
 pdf_directory = 
 ```
+You will need a service account for Google and export to a json file, that is what you reference in the google sheet credentials.
 
 ## Contributing
 

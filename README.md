@@ -79,7 +79,10 @@ python jobsearch.py
 
 - `linkedin_jobs_scraper` - For scraping job listings from LinkedIn
 - `langchain` - For LLM agent integration and job analysis
-- `GoogleSheetsManager` - For storing and organizing results
+- `googleapiclient` - For storing and organizing results into Google Sheets
+- `google.oauth2` - For Google Authentication
+- `langchain_google_genai` - For Google Gemini LLM integration with LangChain
+- `langchain_openai` - For OpenAI LLM integration with LangChain
 
 ## Configuration
 

@@ -89,7 +89,9 @@ Create a .env file with the following structure:
 LI_AT_COOKIE = 
 google_api_key = 
 OPENAI_API_KEY = 
+
 google_sheets_credentials = .json
+
 spreadsheet_id = 
 pdf_resume = .pdf
 pdf_directory = 

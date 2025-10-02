@@ -1,13 +1,16 @@
-AI Agent for LinkedIn Job Search Scraper
-An intelligent job search automation tool that scrapes LinkedIn job postings, analyzes them against your resume using AI, and provides personalized recommendations to help you focus on the best opportunities.
-Overview
-This Python-based tool streamlines your job search by:
+# AI Agent for LinkedIn Job Search Scraper
 
-Scraping job listings from LinkedIn over a specified time period
-Using an LLM agent to compare job descriptions against your resume, choose your favorite from Gemini, OpenAI, Claude
-Providing a qualification score for each position
-Generating tailored recommendations on whether to apply
-Automatically storing all results in Google Sheets for easy tracking
+An intelligent job search automation tool that scrapes LinkedIn job postings, analyzes them against your resume using AI, and provides personalized recommendations to help you focus on the best opportunities.
+
+## Overview
+
+This Python-based tool streamlines your job search by:
+- Scraping job listings from LinkedIn over a specified time period
+- Using an LLM agent to compare job descriptions against your resume
+- Providing a qualification score for each position
+- Generating tailored recommendations on whether to apply
+- Automatically storing all results in Google Sheets for easy tracking
+
 
 Features
 

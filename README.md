@@ -65,7 +65,7 @@ Configure your job search parameters (location, keywords, time range)
 Upload or link your resume
 Run the scraper:
 
-bashpython main.py
+bash python jobsearch.py
 
 Review your results in the generated Google Sheet
 
@@ -86,11 +86,17 @@ GoogleSheetsManager - For storing and organizing results
 Configuration
 Create a .env file with the following structure:
 LI_AT_COOKIE = 
+
 google_api_key = 
+
 OPENAI_API_KEY = 
+
 google_sheets_credentials = .json
+
 spreadsheet_id = 
+
 pdf_resume = .pdf
+
 pdf_directory = 
 
 Contributing

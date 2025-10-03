@@ -12,6 +12,7 @@ from datetime import datetime
 # Loading Agents
 from Agents.GeminiLLMAgent import GeminiLLMAgent
 from Agents.OpenAILLMAgent import OpenAILLMAgent
+from Agents.ClaudeLLMAgent import ClaudeLLMAgent
 
 # Load environment variables from .env file
 load_dotenv()
@@ -70,14 +71,17 @@ scraper = LinkedinScraper(
     chrome_options=None,  # Custom Chrome options here
     headless=True,  # Overrides headless mode only if chrome_options is None
     max_workers=1,  # How many threads will be spawned to run queries concurrently (one Chrome driver for each thread)
-    slow_mo=1,  # Slow down the scraper to avoid 'Too many requests 429' errors (in seconds)
-    page_load_timeout=120  # Page load timeout (in seconds)    
+    slow_mo=0.5,  # Slow down the scraper to avoid 'Too many requests 429' errors (in seconds)
+    page_load_timeout=240  # Page load timeout (in seconds)    
 )
 
 # Creating all Agents
 GeminiAgent = GeminiLLMAgent()
 OpenAIAgent = OpenAILLMAgent()
-run_open_ai = True # Set to false if you do not want to run OpenAI LLM
+ClaudeAgent = ClaudeLLMAgent()
+
+run_open_ai = False # Set to false if you do not want to run OpenAI LLM
+run_claude_ai = False # Set to false if you do not want to run Anthropic Claude LLM
 
 # Add event listeners
 scraper.on(Events.DATA, on_data)
@@ -92,7 +96,7 @@ queries = [
             apply_link=True,  # Try to extract apply link (easy applies are skipped). If set to True, scraping is slower because an additional page must be navigated. Default to False.
             skip_promoted_jobs=False,  # Skip promoted jobs. Default to False.
             page_offset=0,  # How many pages to skip
-            limit=250,
+            limit=150,
             filters=QueryFilters(
                 #company_jobs_url='https://www.linkedin.com/jobs/search/?f_C=1441%2C17876832%2C791962%2C2374003%2C18950635%2C16140%2C10440912&geoId=92000000',  # Filter by companies.                
                 relevance=RelevanceFilters.RECENT,
@@ -122,7 +126,9 @@ logger.info("Using Scraper")
 df.to_csv("jobs.csv")
 
 # Create a set of existing URLs for O(1) lookup (index 7 is the URL)
-existing_urls = {row[7] for row in data_rows if len(row) > 7}
+#existing_urls = {row[7] for row in data_rows if len(row) > 7}
+#It is better to check for duplicates using the job_id
+existing_ids = {row[0] for row in data_rows if len(row) > 0}
 
 for idx, item in df.iterrows():
     try:
@@ -170,10 +176,12 @@ for idx, item in df.iterrows():
 
         logger.info(f"Has Salary in Threshold: {Salary_in_Threshold} ")
         # Check if URL already exists (index 8)
-        url = record_pd[8] if len(record_pd) > 8 else None
+        #url = record_pd[8] if len(record_pd) > 8 else None
+        # Check if ID exist
+        record_pd_job_id = record_pd[0] if len(record_pd) > 0 else None
 
         if Salary_in_Threshold:
-            if url in existing_urls:
+            if record_pd_job_id in existing_ids:
                 print(f"Value exists: {record_pd[3]}")
                 logger.info(f"Job already in Google Sheets ")
             else:
@@ -222,11 +230,32 @@ for idx, item in df.iterrows():
                     record_pd.append(OpenAIllm_response['ats_compatibility']['score'])
                     record_pd.append(OpenAIllm_response['ats_compatibility']['issues'])
 
+                if run_claude_ai:
+                    Claudellm_response = ClaudeAgent.execute_agent(description, full_resume)
+
+                    logger.info(f"Claude LLM responses: ")
+                
+                    Clauderecommendations = Claudellm_response['improvement_recommendations']
+                    Claudeformatted_list = '\n'.join([
+                        f"• [{CLrec['priority']}] {CLrec['category']}: {CLrec['recommendation']}" 
+                        for CLrec in Clauderecommendations
+                    ])
+                    
+                    logger.info(f"Open AI Score: {Claudellm_response['overall_score']} ")
+                    logger.info(f"Open AI Recommendations: {Claudeformatted_list} ")
+                    logger.info(f"Open AI ATS Score: {Claudellm_response['ats_compatibility']['score']} ")
+                    logger.info(f"Open AI ATS Issues: {Claudellm_response['ats_compatibility']['issues']} ")
+
+                    record_pd.append(Claudellm_response['overall_score'])
+                    record_pd.append(Claudeformatted_list)
+                    record_pd.append(Claudellm_response['ats_compatibility']['score'])
+                    record_pd.append(Claudellm_response['ats_compatibility']['issues'])
+
                 #print(f"Record: {record_pd}")
                 result = manager.add_record(record_pd,key_columns=[8])
                 
                 if result['added']:
-                    existing_urls.add(url)
+                    existing_ids.add(record_pd_job_id)
         else:
             logger.info(f"Skipping Record, salary : {record_pd[2]} , Salary Info Low: {salary_info['salary_text']}")
 

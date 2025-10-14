@@ -10,6 +10,7 @@ This Python-based tool streamlines your job search by:
 - Providing a qualification score for each position
 - Generating tailored recommendations on whether to apply
 - Automatically storing all results in Google Sheets for easy tracking
+- If the score is above certain treshold then it will create a customized resume for you
 
 ## Features
 
@@ -20,6 +21,7 @@ This Python-based tool streamlines your job search by:
 - **Qualification Scoring**: Get an objective score showing how well you match each position
 - **Personalized Recommendations**: Receive specific advice on whether to apply and how to improve your application
 - **Google Sheets Integration**: All data is automatically organized and stored for easy reference and tracking
+- **Customized Resume**: Update resume with recommendations to tailor it to the job description.
 
 ## Who Is This For?
 

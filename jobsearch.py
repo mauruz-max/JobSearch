@@ -3,6 +3,7 @@ import os
 import pandas as pd
 import traceback
 import sys
+import asyncio
 
 from Sheets.GoogleSheetsManager import GoogleSheetsManager
 from Utils.LoadUtils import LoadUtils
@@ -123,7 +124,7 @@ logger.info("Using Scraper")
 #df = pd.read_csv("./jobs.csv")
 #logger.info("Using CSV")
 
-df.to_csv("jobs.csv")
+#df.to_csv("jobs.csv")
 
 # Create a set of existing URLs for O(1) lookup (index 7 is the URL)
 #existing_urls = {row[7] for row in data_rows if len(row) > 7}
@@ -138,10 +139,10 @@ for idx, item in df.iterrows():
         logger.info(f"Title: {record_pd[2]} ")
         logger.info(f"Company: {record_pd[3]} ")
         logger.info(f"Len of record_pd: {len(record_pd)}")
-        #logger.info(f"Description: {record_pd[10]} ")
-        logger.info(f"Description Variable: {description} ")
         
-        logger.error(f"PD Values: {record_pd} ")
+        #logger.debug(f"Description Variable: {description} ")
+        
+        #logger.debug(f"PD Values: {record_pd} ")
         
 
         # Extra safety: ensure it's a string
@@ -185,7 +186,7 @@ for idx, item in df.iterrows():
                 print(f"Value exists: {record_pd[3]}")
                 logger.info(f"Job already in Google Sheets ")
             else:
-                print(f"Record does not exist: {record_pd[3]}")
+                print(f"Record does not exist:x {record_pd[3]}")
                 logger.info(f"Job will be added to Google Sheets ")
                 
                 llm_response = GeminiAgent.execute_agent(description, full_resume)
@@ -194,7 +195,7 @@ for idx, item in df.iterrows():
                 
                 recommendations = llm_response['improvement_recommendations']
                 formatted_list = '\n'.join([
-                    f"• [{rec['priority']}] {rec['category']}: {rec['recommendation']}" 
+                    f"• [{rec['priority']}] {rec['category']}: {rec['recommendation']}, before: {rec['example_before']} , after: {rec['example_after']} " 
                     for rec in recommendations
                 ])
                 
@@ -202,6 +203,15 @@ for idx, item in df.iterrows():
                 logger.info(f"Recommendations: {formatted_list} ")
                 logger.info(f"ATS Score: {llm_response['ats_compatibility']['score']} ")
                 logger.info(f"ATS Issues: {llm_response['ats_compatibility']['issues']} ")
+
+                if llm_response['overall_score'] >= 80:
+                    llm_customization_resume_response = GeminiAgent.LLM_Resume_Customization(description, full_resume, formatted_list, llm_response['ats_compatibility']['issues'])
+                    logger.warning(f"Gemini LLM responses for Resume Customization:  {llm_customization_resume_response}")
+
+                    if llm_customization_resume_response is not None:
+                        resume_writing_response = LoadUtils.save_to_pdf(llm_customization_resume_response, record_pd[0], record_pd[2])
+                        if resume_writing_response:
+                            print(f"Saving Custimized Resume correctly.")
 
                 record_pd.append(salary_info['salary_text'])
                 record_pd.append(llm_response['overall_score'])
@@ -261,3 +271,4 @@ for idx, item in df.iterrows():
 
     except Exception as e:
         print(f"Error in Jobs Search: {e}")
+        break

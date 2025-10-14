@@ -2,10 +2,15 @@ import json
 import os
 import pandas as pd
 import re
+import logging
+
 from typing import Dict, Optional, List, Tuple
 
 # LangChain imports
 from langchain_community.document_loaders import PyPDFLoader
+from markdown_pdf import MarkdownPdf, Section
+
+logger = logging.getLogger(__name__)
 
 class LoadUtils:
     """
@@ -232,3 +237,25 @@ class LoadUtils:
         #print(f"Result: {parsed_json}")
         return parsed_json
 
+    @staticmethod
+    def save_to_pdf(input_str, jobid: str, job_title: str ) -> bool:
+        """
+            Save a string into a PDF Document
+            Args:
+                input_str: String that needs to be converted to PDF
+            Returns:
+                bool: True if the PDF is created, False if it fails
+        """
+        pdf_file_name = os.path.join(os.environ['pdf_directory'], f"{jobid}-{job_title}.pdf")
+
+        try:
+            pdf = MarkdownPdf()
+            pdf.meta["title"] = 'Mauricio Ruiz Resume'
+            pdf.add_section(Section(input_str, toc=False))
+            pdf.save(pdf_file_name)
+
+            return True
+        except Exception as e:
+            logger.info(f"Saving to PDF Failure: {e}")
+            return False
+    

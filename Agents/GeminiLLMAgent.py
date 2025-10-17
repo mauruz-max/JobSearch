@@ -74,18 +74,18 @@ class GeminiLLMAgent:
                 Updated Resume in a tring ready to be saved into a PDF.
         """
          
-        enhanced_prompt = self.base_customization_resume_template.format(
-            full_resume = resume_text,
-            job_desc = job_description,
-            recommendations = recommendations,
-            ats_suggestions = ats_recommendations
-        )
-        logger.warning(f"Enhanced Gemini Prompt: {enhanced_prompt}")
-
         try:
+            enhanced_prompt = self.base_customization_resume_template.format(
+                full_resume = resume_text,
+                job_desc = job_description,
+                recommendations = recommendations,
+                ats_suggestions = ats_recommendations
+            )
+            logger.warning(f"Enhanced Gemini Prompt for Resume Customization: {enhanced_prompt}")
+
             response = self.llm.invoke(enhanced_prompt)
             response_text = response.content
-            #logger.warning(f"Enhanced Gemini Resume: {response}")
+            logger.warning(f"Enhanced Gemini Customized Resume: {response_text}")
 
             return response_text 
         except Exception as e:

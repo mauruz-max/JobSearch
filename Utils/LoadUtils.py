@@ -8,7 +8,8 @@ from typing import Dict, Optional, List, Tuple
 
 # LangChain imports
 from langchain_community.document_loaders import PyPDFLoader
-from markdown_pdf import MarkdownPdf, Section
+#from markdown_pdf import MarkdownPdf, Section
+from md2pdf.core import md2pdf
 
 logger = logging.getLogger(__name__)
 
@@ -249,10 +250,11 @@ class LoadUtils:
         pdf_file_name = os.path.join(os.environ['pdf_directory'], f"{jobid}-{job_title}.pdf")
 
         try:
-            pdf = MarkdownPdf()
-            pdf.meta["title"] = 'Mauricio Ruiz Resume'
-            pdf.add_section(Section(input_str, toc=False))
-            pdf.save(pdf_file_name)
+            md2pdf(pdf_file_name, md_content=input_str)
+            #pdf = MarkdownPdf()
+            #pdf.meta["title"] = 'Mauricio Ruiz Resume'
+            #pdf.add_section(Section(input_str, toc=False))
+            #pdf.save(pdf_file_name)
 
             return True
         except Exception as e:
